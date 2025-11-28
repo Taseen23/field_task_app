@@ -1,59 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../config/theme.dart';
+import 'controllers/task_controller.dart';
 import 'widgets/custom_text_field.dart';
 
-class CreateTaskScreen extends StatefulWidget {
-  const CreateTaskScreen({Key? key}) : super(key: key);
+class CreateTaskScreen extends StatelessWidget {
+  CreateTaskScreen({Key? key}) : super(key: key);
 
-  @override
-  State<CreateTaskScreen> createState() => _CreateTaskScreenState();
-}
-
-class _CreateTaskScreenState extends State<CreateTaskScreen> {
-  final TextEditingController titleController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
-
-  DateTime? selectedDate;
-  TimeOfDay? selectedTime;
-  double? selectedLatitude;
-  double? selectedLongitude;
-
-  @override
-  void dispose() {
-    titleController.dispose();
-    descriptionController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-    );
-    if (picked != null) {
-      setState(() => selectedDate = picked);
-    }
-  }
-
-  Future<void> _selectTime(BuildContext context) async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-    if (picked != null) {
-      setState(() => selectedTime = picked);
-    }
-  }
-
-  void _selectLocation() {
-    setState(() {
-      selectedLatitude = 0.0000;
-      selectedLongitude = 0.0000;
-    });
-  }
+  final TaskController controller = Get.put(TaskController());
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +20,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CustomTextField(
-              controller: titleController,
+              controller: controller.titleController,
               label: 'Task Title',
               hint: 'Enter task title',
               prefixIcon: Icons.title,
@@ -74,7 +29,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             const SizedBox(height: 16),
 
             CustomTextField(
-              controller: descriptionController,
+              controller: controller.descriptionController,
               label: 'Description',
               hint: 'Enter task description',
               prefixIcon: Icons.description,
@@ -86,38 +41,42 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             Text('Due Date', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
 
-            GestureDetector(
-              onTap: () => _selectDate(context),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppTheme.borderColor),
-                  borderRadius: BorderRadius.circular(8),
-                  color: AppTheme.backgroundColor,
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.calendar_today,
-                      color: AppTheme.primaryColor,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        selectedDate != null
-                            ? DateFormat('MMM dd, yyyy').format(selectedDate!)
-                            : 'Select date',
-                        style: TextStyle(
-                          color: selectedDate != null
-                              ? AppTheme.textPrimaryColor
-                              : AppTheme.textSecondaryColor,
+            Obx(
+              () => GestureDetector(
+                onTap: () => controller.selectDate(context),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppTheme.borderColor),
+                    borderRadius: BorderRadius.circular(8),
+                    color: AppTheme.backgroundColor,
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.calendar_today,
+                        color: AppTheme.primaryColor,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          controller.selectedDate.value != null
+                              ? DateFormat(
+                                  'MMM dd, yyyy',
+                                ).format(controller.selectedDate.value!)
+                              : 'Select date',
+                          style: TextStyle(
+                            color: controller.selectedDate.value != null
+                                ? AppTheme.textPrimaryColor
+                                : AppTheme.textSecondaryColor,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -127,35 +86,40 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             Text('Due Time', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
 
-            GestureDetector(
-              onTap: () => _selectTime(context),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppTheme.borderColor),
-                  borderRadius: BorderRadius.circular(8),
-                  color: AppTheme.backgroundColor,
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.access_time, color: AppTheme.primaryColor),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        selectedTime != null
-                            ? selectedTime!.format(context)
-                            : 'Select time',
-                        style: TextStyle(
-                          color: selectedTime != null
-                              ? AppTheme.textPrimaryColor
-                              : AppTheme.textSecondaryColor,
+            Obx(
+              () => GestureDetector(
+                onTap: () => controller.selectTime(context),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppTheme.borderColor),
+                    borderRadius: BorderRadius.circular(8),
+                    color: AppTheme.backgroundColor,
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.access_time,
+                        color: AppTheme.primaryColor,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          controller.selectedTime.value != null
+                              ? controller.selectedTime.value!.format(context)
+                              : 'Select time',
+                          style: TextStyle(
+                            color: controller.selectedTime.value != null
+                                ? AppTheme.textPrimaryColor
+                                : AppTheme.textSecondaryColor,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -168,36 +132,40 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             ),
             const SizedBox(height: 8),
 
-            GestureDetector(
-              onTap: _selectLocation,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppTheme.borderColor),
-                  borderRadius: BorderRadius.circular(8),
-                  color: AppTheme.backgroundColor,
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.location_on, color: AppTheme.primaryColor),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        selectedLatitude != null
-                            ? '${selectedLatitude!.toStringAsFixed(4)}, '
-                                  '${selectedLongitude!.toStringAsFixed(4)}'
-                            : 'Select location',
-                        style: TextStyle(
-                          color: selectedLatitude != null
-                              ? AppTheme.textPrimaryColor
-                              : AppTheme.textSecondaryColor,
+            Obx(
+              () => GestureDetector(
+                onTap: controller.selectLocation,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppTheme.borderColor),
+                    borderRadius: BorderRadius.circular(8),
+                    color: AppTheme.backgroundColor,
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.location_on,
+                        color: AppTheme.primaryColor,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          controller.selectedLatitude.value != null
+                              ? '${controller.selectedLatitude.value!.toStringAsFixed(4)}, ${controller.selectedLongitude.value!.toStringAsFixed(4)}'
+                              : 'Select location',
+                          style: TextStyle(
+                            color: controller.selectedLatitude.value != null
+                                ? AppTheme.textPrimaryColor
+                                : AppTheme.textSecondaryColor,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -206,8 +174,16 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
 
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {},
+              child: GestureDetector(
+                onTap: () => controller.isLoading.value
+                    ? null
+                    : controller.createTask(
+                        description: controller.descriptionController.text,
+                        dueDate: controller.selectedDate.value!,
+                        latitude: controller.selectedLatitude.value!,
+                        title: controller.titleController.text,
+                        longitude: controller.selectedLongitude.value!,
+                      ),
                 child: const Text('Create Task'),
               ),
             ),

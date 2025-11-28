@@ -2,137 +2,193 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../config/app_routes.dart';
 import '../config/theme.dart';
+import 'controllers/task_controller.dart';
+import 'widgets/task_card.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+
+class HomeScreen extends StatelessWidget {
+  HomeScreen({Key? key}) : super(key: key);
+
+  // final TaskController taskController = Get.find<TaskController>();
+
+
+  final taskController = Get.put(TaskController());
+  // final AuthController authController = Get.find<AuthController>();
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
+  Widget build(BuildContext context) {
+    // Fetch tasks initially
+    taskController.fetchTasks();
 
-class _HomeScreenState extends State<HomeScreen> {
-  int _selectedTabIndex = 0;
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: const Text('Field Tasks'),
-      elevation: 0,
-   
-    ),
-    body: RefreshIndicator(
-      color: AppTheme.primaryColor,
-      onRefresh: () async {},
-      child: ListView(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            color: AppTheme.primaryColor,
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Field Tasks'),
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => taskController.fetchTasks(),
+          ),
+       
+        ],
+      ),
+      body: RefreshIndicator(
+        onRefresh: () => taskController.fetchTasks(),
+        child: Column(
+          children: [
+            // Stats Section
+            Obx(() {
+              return Container(
+                padding: const EdgeInsets.all(16),
+                color: AppTheme.primaryColor,
+                child: Column(
                   children: [
-                    _buildStatCard('Total', '0', Colors.white),
-                    _buildStatCard('Completed', '0', Colors.white),
-                    _buildStatCard('Pending', '0', Colors.white),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildStatCard(
+                            'Total', taskController.totalTasks.toString(), Colors.white),
+                        _buildStatCard('Completed',
+                            taskController.completedCount.toString(), Colors.white),
+                        _buildStatCard(
+                            'Pending', taskController.pendingCount.toString(), Colors.white),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    // Progress bar
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: LinearProgressIndicator(
+                        value: taskController.completionPercentage / 100,
+                        minHeight: 8,
+                        backgroundColor: Colors.white24,
+                        valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${taskController.completionPercentage.toStringAsFixed(0)}% Complete',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 16),
+              );
+            }),
 
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: 0.0,
-                    minHeight: 8,
-                    backgroundColor: Colors.white24,
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      Colors.white,
+            // Tab Bar
+            Obx(() {
+              return Container(
+                color: AppTheme.surfaceColor,
+                child: Row(
+                  children: List.generate(3, (index) {
+                    String label;
+                    if (index == 0) label = 'All';
+                    else if (index == 1) label = 'Pending';
+                    else label = 'Completed';
+                    return _buildTab(label, index);
+                  }),
+                ),
+              );
+            }),
+
+            // Tasks List
+            Expanded(
+              child: Obx(() {
+                List<dynamic> displayTasks;
+                if (taskController.selectedTabIndex.value == 0) {
+                  displayTasks = taskController.tasks;
+                } else if (taskController.selectedTabIndex.value == 1) {
+                  displayTasks = taskController.pendingTasks;
+                } else {
+                  displayTasks = taskController.completedTasks;
+                }
+
+                if (taskController.isLoading.value && displayTasks.isEmpty) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (displayTasks.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.task_alt,
+                          size: 64,
+                          color: AppTheme.textSecondaryColor.withOpacity(0.3),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No tasks found',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                color: AppTheme.textSecondaryColor,
+                              ),
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-                const SizedBox(height: 8),
+                  );
+                }
 
-                const Text(
-                  '0% Complete',
-                  style: TextStyle(color: Colors.white, fontSize: 12),
-                ),
-              ],
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: displayTasks.length,
+                  itemBuilder: (context, index) {
+                    return TaskCard(
+                      task: displayTasks[index],
+                      onTap: () {
+                        taskController.selectTask(displayTasks[index]);
+                        Get.toNamed(
+                          AppRoutes.taskDetail,
+                          arguments: displayTasks[index],
+                        );
+                      },
+                    );
+                  },
+                );
+              }),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Get.toNamed(AppRoutes.createTask),
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _buildStatCard(String label, String value, Color textColor) => Column(
+        children: [
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: textColor,
+              fontFamily: 'Poppins',
             ),
           ),
-
-          Container(
-            color: AppTheme.surfaceColor,
-            child: Row(
-              children: [
-                _buildTab('All', 0),
-                _buildTab('Pending', 1),
-                _buildTab('Completed', 2),
-              ],
-            ),
-          ),
-
-          Expanded(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.task_alt,
-                    size: 64,
-                    color: AppTheme.textSecondaryColor.withOpacity(0.3),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No tasks found',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: AppTheme.textSecondaryColor,
-                    ),
-                  ),
-                ],
-              ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: textColor.withOpacity(0.8),
+              fontFamily: 'Poppins',
             ),
           ),
         ],
-      ),
-    ),
-
-    floatingActionButton: FloatingActionButton(
-      onPressed: () {
-        Get.toNamed(AppRoutes.createTask);
-      },
-      child: const Icon(Icons.add),
-    ),
-  );
-
-  Widget _buildStatCard(String label, String value, Color textColor) => Column(
-    children: [
-      Text(
-        value,
-        style: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-          color: textColor,
-        ),
-      ),
-      const SizedBox(height: 4),
-      Text(
-        label,
-        style: TextStyle(fontSize: 12, color: textColor.withOpacity(0.8)),
-      ),
-    ],
-  );
+      );
 
   Widget _buildTab(String label, int index) {
-    final isSelected = _selectedTabIndex == index;
-
+    final isSelected = taskController.selectedTabIndex.value == index;
     return Expanded(
       child: GestureDetector(
-        onTap: () {
-          setState(() {
-            _selectedTabIndex = index;
-          });
-        },
+        onTap: () => taskController.setSelectedTab(index),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
@@ -149,9 +205,8 @@ class _HomeScreenState extends State<HomeScreen> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              color: isSelected
-                  ? AppTheme.primaryColor
-                  : AppTheme.textSecondaryColor,
+              color: isSelected ? AppTheme.primaryColor : AppTheme.textSecondaryColor,
+              fontFamily: 'Poppins',
             ),
           ),
         ),
