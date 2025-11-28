@@ -3,8 +3,14 @@ import 'package:get/get.dart';
 
 import 'config/app_routes.dart';
 import 'config/theme.dart';
+import 'firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   runApp(const FieldTaskApp());
 }
 
