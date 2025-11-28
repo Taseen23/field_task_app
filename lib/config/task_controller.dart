@@ -14,7 +14,6 @@ class TaskController extends GetxController {
   final RxList<Task> tasks = RxList<Task>([]);
   final RxString errorMessage = RxString('');
   final logger = Logger();
-  bool isEditing = false;
 
   // Currently selected task for details
   var selectedTask = Rxn<Task>();
@@ -58,7 +57,6 @@ class TaskController extends GetxController {
   void onClose() {
     titleController.dispose();
     descriptionController.dispose();
-
     super.onClose();
   }
 

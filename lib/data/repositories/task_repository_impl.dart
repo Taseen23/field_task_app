@@ -8,16 +8,15 @@ class TaskRepositoryImpl implements TaskRepository {
   final FirebaseFirestore _firestore;
 
   TaskRepositoryImpl({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   @override
-  Future<List<Task>> fetchTasksFromFirebase(String agentId) async {
+  Future<List<Task>> fetchTasksFromFirebase() async {
     try {
-      final snapshot = await _firestore
-          .collection('tasks')
-          .where('id', isEqualTo: agentId)
-          .orderBy('dueDate', descending: false)
-          .get();
+      final snapshot = await _firestore.collection('tasks').get();
+      // .where('id', isEqualTo: agentId)
+      // .orderBy('dueDate', descending: false)
+      // .get();
 
       final tasks = snapshot.docs
           .map((doc) => TaskModel.fromJson({...doc.data(), 'id': doc.id}))
@@ -75,8 +74,11 @@ class TaskRepositoryImpl implements TaskRepository {
   @override
   Future<void> saveTasksLocally(List<Task> tasks) async {
     try {
-      final taskModels = tasks.map((task) => TaskModel.fromDomain(task)).toList();
-      await HiveService.saveTasks(taskModels);
+      final taskModels = tasks
+          .map((task) => TaskModel.fromDomain(task))
+          .toList();
+      print(taskModels);
+      // await HiveService.saveTasks(taskModels); // TODO
     } catch (e) {
       rethrow;
     }
@@ -124,7 +126,7 @@ class TaskRepositoryImpl implements TaskRepository {
   Future<void> syncTasksWithFirebase(String agentId) async {
     try {
       // Fetch tasks from Firebase
-      final remoteTasks = await fetchTasksFromFirebase(agentId);
+      final remoteTasks = await fetchTasksFromFirebase();
 
       // Save to local storage
       await saveTasksLocally(remoteTasks);

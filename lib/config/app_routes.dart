@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import '../presentation/check_in_screen.dart';
 import '../presentation/create_task_screen.dart';
 import '../presentation/home_screen.dart';
+import '../presentation/task_detail_screen.dart';
 
 class AppRoutes {
   static const String splash = '/splash';
@@ -26,6 +27,12 @@ class AppRoutes {
     GetPage(
       name: checkIn,
       page: () => const CheckInScreen(),
+      transition: Transition.cupertino,
+    ),
+
+     GetPage(
+      name: taskDetail,
+      page: () =>  TaskDetailScreen(),
       transition: Transition.cupertino,
     ),
   ];

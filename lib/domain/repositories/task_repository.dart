@@ -2,7 +2,7 @@ import '../entities/task.dart';
 
 abstract class TaskRepository {
   // Remote operations
-  Future<List<Task>> fetchTasksFromFirebase(String agentId);
+  Future<List<Task>> fetchTasksFromFirebase();
   Future<void> createTaskInFirebase(Task task);
   Future<void> updateTaskInFirebase(Task task);
   Future<void> deleteTaskInFirebase(String taskId);

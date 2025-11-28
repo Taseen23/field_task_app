@@ -6,14 +6,29 @@ import 'controllers/task_controller.dart';
 import 'widgets/custom_text_field.dart';
 
 class CreateTaskScreen extends StatelessWidget {
-  CreateTaskScreen({Key? key}) : super(key: key);
-
   final TaskController controller = Get.put(TaskController());
+
+  CreateTaskScreen({Key? key}) : super(key: key) {
+    final args = Get.arguments;
+    if (args != null) {
+      controller.isEditing = true;
+      final task = args;
+      controller.titleController.text = task.title;
+      controller.descriptionController.text = task.description;
+      controller.selectedDate.value = task.dueDate;
+      controller.selectedTime.value = TimeOfDay.fromDateTime(task.dueDate);
+      controller.selectedLatitude.value = task.latitude;
+      controller.selectedLongitude.value = task.longitude;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create New Task'), elevation: 0),
+      appBar: AppBar(
+        title: Text(controller.isEditing ? 'Edit Task' : 'Create New Task'),
+        elevation: 0,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

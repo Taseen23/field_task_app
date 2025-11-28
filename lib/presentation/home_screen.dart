@@ -102,6 +102,7 @@ class HomeScreen extends StatelessWidget {
                 if (taskController.selectedTabIndex.value == 0) {
                   displayTasks = taskController.tasks;
                 } else if (taskController.selectedTabIndex.value == 1) {
+                  
                   displayTasks = taskController.pendingTasks;
                 } else {
                   displayTasks = taskController.completedTasks;
@@ -146,6 +147,7 @@ class HomeScreen extends StatelessWidget {
                           arguments: displayTasks[index],
                         );
                       },
+
                     );
                   },
                 );
