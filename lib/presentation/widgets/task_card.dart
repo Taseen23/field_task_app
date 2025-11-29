@@ -7,11 +7,8 @@ class TaskCard extends StatelessWidget {
   final Task task;
   final VoidCallback onTap;
 
-  const TaskCard({
-    Key? key,
-    required this.task,
-    required this.onTap,
-  }) : super(key: key);
+  const TaskCard({Key? key, required this.task, required this.onTap})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +21,7 @@ class TaskCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: _getStatusColor(task.status).withOpacity(0.3),
+              color: _getStatusColor(task.status).withValues(alpha: 0.3),
               width: 1.5,
             ),
           ),
@@ -49,7 +46,9 @@ class TaskCard extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: _getStatusColor(task.status).withOpacity(0.1),
+                      color: _getStatusColor(
+                        task.status,
+                      ).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -89,8 +88,8 @@ class TaskCard extends StatelessWidget {
                   Text(
                     DateFormat('MMM dd, yyyy').format(task.dueDate),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.textSecondaryColor,
-                        ),
+                      color: AppTheme.textSecondaryColor,
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Icon(
@@ -103,8 +102,8 @@ class TaskCard extends StatelessWidget {
                     child: Text(
                       '${task.latitude.toStringAsFixed(2)}, ${task.longitude.toStringAsFixed(2)}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppTheme.textSecondaryColor,
-                          ),
+                        color: AppTheme.textSecondaryColor,
+                      ),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),

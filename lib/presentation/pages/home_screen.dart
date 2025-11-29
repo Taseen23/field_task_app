@@ -5,15 +5,11 @@ import '../../config/theme.dart';
 import '../controllers/task_controller.dart';
 import '../widgets/task_card.dart';
 
-
 class HomeScreen extends StatelessWidget {
   HomeScreen({Key? key}) : super(key: key);
 
-  // final TaskController taskController = Get.find<TaskController>();
-
 
   final taskController = Get.put(TaskController());
-  // final AuthController authController = Get.find<AuthController>();
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +25,6 @@ class HomeScreen extends StatelessWidget {
             icon: const Icon(Icons.refresh),
             onPressed: () => taskController.fetchTasks(),
           ),
-       
         ],
       ),
       body: RefreshIndicator(
@@ -47,11 +42,20 @@ class HomeScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         _buildStatCard(
-                            'Total', taskController.totalTasks.toString(), Colors.white),
-                        _buildStatCard('Completed',
-                            taskController.completedCount.toString(), Colors.white),
+                          'Total',
+                          taskController.totalTasks.toString(),
+                          Colors.white,
+                        ),
                         _buildStatCard(
-                            'Pending', taskController.pendingCount.toString(), Colors.white),
+                          'Completed',
+                          taskController.completedCount.toString(),
+                          Colors.white,
+                        ),
+                        _buildStatCard(
+                          'Pending',
+                          taskController.pendingCount.toString(),
+                          Colors.white,
+                        ),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -62,7 +66,9 @@ class HomeScreen extends StatelessWidget {
                         value: taskController.completionPercentage / 100,
                         minHeight: 8,
                         backgroundColor: Colors.white24,
-                        valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          Colors.white,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -71,7 +77,7 @@ class HomeScreen extends StatelessWidget {
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
-                        fontFamily: 'Poppins',
+                   
                       ),
                     ),
                   ],
@@ -86,9 +92,12 @@ class HomeScreen extends StatelessWidget {
                 child: Row(
                   children: List.generate(3, (index) {
                     String label;
-                    if (index == 0) label = 'All';
-                    else if (index == 1) label = 'Pending';
-                    else label = 'Completed';
+                    if (index == 0)
+                      label = 'All';
+                    else if (index == 1)
+                      label = 'Pending';
+                    else
+                      label = 'Completed';
                     return _buildTab(label, index);
                   }),
                 ),
@@ -102,7 +111,6 @@ class HomeScreen extends StatelessWidget {
                 if (taskController.selectedTabIndex.value == 0) {
                   displayTasks = taskController.tasks;
                 } else if (taskController.selectedTabIndex.value == 1) {
-                  
                   displayTasks = taskController.pendingTasks;
                 } else {
                   displayTasks = taskController.completedTasks;
@@ -120,14 +128,15 @@ class HomeScreen extends StatelessWidget {
                         Icon(
                           Icons.task_alt,
                           size: 64,
-                          color: AppTheme.textSecondaryColor.withOpacity(0.3),
+                          color: AppTheme.textSecondaryColor.withValues(
+                            alpha: 0.3,
+                          ),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           'No tasks found',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                color: AppTheme.textSecondaryColor,
-                              ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(color: AppTheme.textSecondaryColor),
                         ),
                       ],
                     ),
@@ -147,7 +156,6 @@ class HomeScreen extends StatelessWidget {
                           arguments: displayTasks[index],
                         );
                       },
-
                     );
                   },
                 );
@@ -164,27 +172,27 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildStatCard(String label, String value, Color textColor) => Column(
-        children: [
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: textColor,
-              fontFamily: 'Poppins',
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: textColor.withOpacity(0.8),
-              fontFamily: 'Poppins',
-            ),
-          ),
-        ],
-      );
+    children: [
+      Text(
+        value,
+        style: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: textColor,
+     
+        ),
+      ),
+      const SizedBox(height: 4),
+      Text(
+        label,
+        style: TextStyle(
+          fontSize: 12,
+          color: textColor.withValues(alpha: 0.8),
+     
+        ),
+      ),
+    ],
+  );
 
   Widget _buildTab(String label, int index) {
     final isSelected = taskController.selectedTabIndex.value == index;
@@ -207,8 +215,10 @@ class HomeScreen extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              color: isSelected ? AppTheme.primaryColor : AppTheme.textSecondaryColor,
-              fontFamily: 'Poppins',
+              color: isSelected
+                  ? AppTheme.primaryColor
+                  : AppTheme.textSecondaryColor,
+         
             ),
           ),
         ),

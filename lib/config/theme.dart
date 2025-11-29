@@ -167,14 +167,7 @@ class AppTheme {
           fontFamily: 'Poppins',
         ),
       ),
-      // cardTheme: CardTheme(
-      //   color: surfaceColor,
-      //   elevation: 2,
-      //   shape: RoundedRectangleBorder(
-      //     borderRadius: BorderRadius.circular(12),
-      //   ),
-      //   margin: const EdgeInsets.all(0),
-      // ),
+    
       dividerTheme: const DividerThemeData(
         color: dividerColor,
         thickness: 1,
@@ -234,12 +227,6 @@ class AppTheme {
           borderSide: const BorderSide(color: primaryColor, width: 2),
         ),
       ),
-      // cardTheme: CardTheme(
-      //   color: darkSurfaceColor,
-      //   elevation: 2,
-      //   shape: RoundedRectangleBorder(
-      //     borderRadius: BorderRadius.circular(12),
-      //   ),
-      // ),
+ 
     );
 }

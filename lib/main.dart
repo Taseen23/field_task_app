@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/adapters.dart';
 
 import 'config/app_routes.dart';
 import 'config/theme.dart';
+import 'data/local/hive_service.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -12,7 +15,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-   Get.put(LocationController(), permanent: true);
+  await Hive.initFlutter();
+  await HiveService.init();
+  Get.put(LocationController(), permanent: true);
 
   runApp(const FieldTaskApp());
 }

@@ -1,4 +1,3 @@
-import 'package:field_task_app/config/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -6,27 +5,27 @@ import '../../config/theme.dart';
 import '../controllers/task_controller.dart';
 import '../widgets/custom_text_field.dart';
 
-class CreateTaskScreen extends StatelessWidget {
+class EditTaskScreen extends StatelessWidget {
   final TaskController controller = Get.put(TaskController());
 
-  CreateTaskScreen({Key? key}) : super(key: key) {
-    // final args = Get.arguments;
-    // if (args != null) {
-    //   controller.isEditing = true;
-    //   final task = args;
-    //   controller.titleController.text = task.title;
-    //   controller.descriptionController.text = task.description;
-    //   controller.selectedDate.value = task.dueDate;
-    //   controller.selectedTime.value = TimeOfDay.fromDateTime(task.dueDate);
-    //   controller.selectedLatitude.value = task.latitude;
-    //   controller.selectedLongitude.value = task.longitude;
-    // }
+  EditTaskScreen({Key? key}) : super(key: key) {
+    final args = Get.arguments;
+    if (args != null) {
+      controller.isEditing = true;
+      final task = args;
+      controller.titleController.text = task.title;
+      controller.descriptionController.text = task.description;
+      controller.selectedDate.value = task.dueDate;
+      controller.selectedTime.value = TimeOfDay.fromDateTime(task.dueDate);
+      controller.selectedLatitude.value = task.latitude;
+      controller.selectedLongitude.value = task.longitude;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Create New Task'), elevation: 0),
+      appBar: AppBar(title: Text('Edit Task'), elevation: 0),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -203,32 +202,9 @@ class CreateTaskScreen extends StatelessWidget {
               width: double.infinity,
               child: GestureDetector(
                 onTap: () {
-                  controller.descriptionController.text = '';
-                  controller.titleController.text = '';
-                  controller.selectedDate.value = null;
-                  controller.selectedTime.value = null;
-                  controller.selectedLatitude.value = null;
-                  controller.selectedLongitude.value = null;
-
                   controller.isLoading.value
                       ? null
-                      :
-                        // controller.titleController.text != ''
-                        // ? print('not working')
-                        // description:
-                        //     controller.descriptionController.text,
-                        // dueDate: controller.selectedDate.value!,
-                        // latitude: controller.selectedLatitude.value!,
-                        // title: controller.titleController.text,
-                        // longitude: controller.selectedLongitude.value!,
-                        // :
-                        controller.createTask(
-                          description: controller.descriptionController.text,
-                          dueDate: controller.selectedDate.value!,
-                          latitude: controller.selectedLatitude.value!,
-                          title: controller.titleController.text,
-                          longitude: controller.selectedLongitude.value!,
-                        );
+                      : controller.updateTask(Get.arguments);
                 },
 
                 child: Container(
@@ -240,7 +216,7 @@ class CreateTaskScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: Align(
                     alignment: Alignment.center,
-                    child: Text('Create Task'),
+                    child: Text('Edit Task'),
                   ),
                 ),
               ),

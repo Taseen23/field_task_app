@@ -12,14 +12,10 @@ class TaskDetailScreen extends StatelessWidget {
   TaskDetailScreen({Key? key}) : super(key: key);
 
   final taskController = Get.put(TaskController());
-  // final LocationController locationController = Get.find<LocationController>();
 
   @override
   Widget build(BuildContext context) {
-    // Select the task passed via arguments
     final Task task = Get.arguments as Task;
-
-    // taskController.selectTask(task);
 
     return Scaffold(
       appBar: AppBar(
@@ -31,8 +27,7 @@ class TaskDetailScreen extends StatelessWidget {
               PopupMenuItem(
                 child: const Text('Edit'),
                 onTap: () {
-                  Get.toNamed(AppRoutes.createTask, arguments: task);
-                  // Implement edit functionality
+                  Get.toNamed(AppRoutes.editTask, arguments: task);
                 },
               ),
               PopupMenuItem(
@@ -93,8 +88,6 @@ class TaskDetailScreen extends StatelessWidget {
                 icon: Icons.location_on,
                 label: 'Location',
                 value: taskController.address.value,
-
-        
               ),
               const SizedBox(height: 16),
               // Distance
@@ -129,7 +122,7 @@ class TaskDetailScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: color),
       ),
@@ -181,7 +174,7 @@ class TaskDetailScreen extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppTheme.secondaryColor.withOpacity(0.1),
+          color: AppTheme.secondaryColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: AppTheme.secondaryColor),
         ),
@@ -231,7 +224,7 @@ class TaskDetailScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.errorColor.withOpacity(0.1),
+        color: AppTheme.errorColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppTheme.errorColor),
       ),
@@ -301,7 +294,7 @@ class TaskDetailScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               Get.back();
-              // taskController.completeTask(task.id);
+              taskController.completeTask(task.id);
             },
             child: const Text('Complete'),
           ),

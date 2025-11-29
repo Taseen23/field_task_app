@@ -1,4 +1,3 @@
-import 'package:field_task_app/config/app_routes.dart';
 import 'package:field_task_app/domain/repositories/task_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -6,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../config/app_routes.dart';
 import '../../data/local/hive_service.dart';
 import '../../data/repositories/task_repository_impl.dart';
 import '../../domain/entities/task.dart';
@@ -14,6 +14,7 @@ import 'location_controller.dart';
 class TaskController extends GetxController {
   final TaskRepository _taskRepository = TaskRepositoryImpl();
   final RxBool isLoading = RxBool(false);
+  final RxBool isSyncing = RxBool(false);
   final RxList<Task> tasks = RxList<Task>([]);
   final RxString errorMessage = RxString('');
   final logger = Logger();
@@ -36,13 +37,8 @@ class TaskController extends GetxController {
   var selectedTime = Rxn<TimeOfDay>();
   var selectedLatitude = RxnDouble();
   var selectedLongitude = RxnDouble();
-
-  //  var tasks = <dynamic>[].obs;
-
   var completedTasks = <dynamic>[].obs;
   var pendingTasks = <dynamic>[].obs;
-
-  // var isLoading = false.obs;
   var selectedTabIndex = 0.obs;
 
   // Stats
@@ -70,7 +66,20 @@ class TaskController extends GetxController {
   @override
   void onInit() {
     _locationController = Get.find<LocationController>();
+    _loadLocalTasks();
+    _syncTasks();
     super.onInit();
+  }
+
+  void _loadLocalTasks() {
+    try {
+      final localTasks = _taskRepository.getAllTasksLocally();
+      tasks.assignAll(localTasks);
+      logger.i('Loaded ${localTasks.length} tasks from local storage');
+    } catch (e) {
+      errorMessage.value = 'Failed to load tasks: $e';
+      logger.e('Load local tasks error: $e');
+    }
   }
 
   var address = ''.obs;
@@ -126,11 +135,6 @@ class TaskController extends GetxController {
     required double longitude,
   }) async {
     try {
-      // if (!_authController.isAuthenticated) {
-      //   errorMessage.value = 'User not authenticated';
-      //   return;
-      // }
-
       isLoading.value = true;
       final taskId = const Uuid().v4();
 
@@ -142,7 +146,7 @@ class TaskController extends GetxController {
         status: 'pending',
         latitude: latitude,
         longitude: longitude,
-        agentId: 'agentId', // Replace with actual agent ID
+        agentId: 'agentId',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
@@ -161,7 +165,7 @@ class TaskController extends GetxController {
         logger.w('Task created locally, will sync when online: $e');
       }
 
-      Get.back();
+      // Get.back();
       Get.snackbar(
         'Success',
         'Task created successfully',
@@ -172,6 +176,20 @@ class TaskController extends GetxController {
       logger.e('Create task error: $e');
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> _syncTasks() async {
+    try {
+      isSyncing.value = true;
+
+      _loadLocalTasks();
+      logger.i('Tasks synced successfully');
+    } catch (e) {
+      logger.e('Sync tasks error: $e');
+      // Don't show error to user if offline
+    } finally {
+      isSyncing.value = false;
     }
   }
 
@@ -207,10 +225,58 @@ class TaskController extends GetxController {
       );
       await updateTask(updatedTask);
 
+      Get.offAllNamed(AppRoutes.home);
+
       logger.i('Checked in to task: $taskId');
     } catch (e) {
       errorMessage.value = 'Failed to check in: $e';
       logger.e('Check in error: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> completeTask(String taskId) async {
+    try {
+      final task = tasks.firstWhereOrNull((t) => t.id == taskId);
+      if (task == null) {
+        errorMessage.value = 'Task not found';
+        return;
+      }
+
+      // Check if task is checked in
+      if (task.status != 'checked_in') {
+        errorMessage.value = 'You must check in before completing the task';
+        return;
+      }
+
+      // Check proximity again
+      isLoading.value = true;
+      final isNearby = await _locationController.isWithinProximity(
+        task.latitude,
+        task.longitude,
+      );
+
+      if (!isNearby) {
+        errorMessage.value =
+            'You must be within the task location to complete it';
+        isLoading.value = false;
+        return;
+      }
+
+      // Update task status
+      final updatedTask = task.copyWith(
+        status: 'completed',
+        updatedAt: DateTime.now(),
+      );
+      await updateTask(updatedTask);
+
+      Get.offAllNamed(AppRoutes.home);
+
+      logger.i('Completed task: $taskId');
+    } catch (e) {
+      errorMessage.value = 'Failed to complete task: $e';
+      logger.e('Complete task error: $e');
     } finally {
       isLoading.value = false;
     }
@@ -265,7 +331,7 @@ class TaskController extends GetxController {
         logger.i('Task deleted and synced: $taskId');
       } catch (e) {
         // Add to sync queue if offline
-        // await HiveService.addToSyncQueue(taskId, 'delete'); // TODO
+        await HiveService.addToSyncQueue(taskId, 'delete');
         logger.w('Task deleted locally, will sync when online: $e');
       }
 
@@ -303,7 +369,7 @@ class TaskController extends GetxController {
       errorMessage.value = 'Failed to fetch tasks: $e';
       logger.e('Fetch tasks error: $e');
       // Load from local storage as fallback
-      // _loadLocalTasks();
+      _loadLocalTasks();
     } finally {
       isLoading.value = false;
     }

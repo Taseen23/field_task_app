@@ -12,7 +12,7 @@ class HiveService {
 
   static Future<void> init() async {
     // Register adapters
-    // Hive.registerAdapter(TaskModelAdapter());
+    Hive.registerAdapter(TaskModelAdapter());
 
     // Open boxes
     _tasksBox = await Hive.openBox<TaskModel>(tasksBoxName);

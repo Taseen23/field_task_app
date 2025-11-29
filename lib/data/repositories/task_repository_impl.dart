@@ -65,7 +65,7 @@ class TaskRepositoryImpl implements TaskRepository {
   Future<void> saveTaskLocally(Task task) async {
     try {
       final taskModel = TaskModel.fromDomain(task);
-      // await HiveService.saveTask(taskModel); // TODO
+      await HiveService.saveTask(taskModel);
     } catch (e) {
       rethrow;
     }
@@ -78,7 +78,7 @@ class TaskRepositoryImpl implements TaskRepository {
           .map((task) => TaskModel.fromDomain(task))
           .toList();
       print(taskModels);
-      // await HiveService.saveTasks(taskModels); // TODO
+      await HiveService.saveTasks(taskModels);
     } catch (e) {
       rethrow;
     }
@@ -107,7 +107,7 @@ class TaskRepositoryImpl implements TaskRepository {
   @override
   Future<void> deleteTaskLocally(String taskId) async {
     try {
-      // await HiveService.deleteTask(taskId); // TODO
+      await HiveService.deleteTask(taskId);
     } catch (e) {
       rethrow;
     }

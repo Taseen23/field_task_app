@@ -1,3 +1,4 @@
+import 'package:field_task_app/config/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../config/theme.dart';
@@ -19,7 +20,7 @@ class CheckInScreen extends StatelessWidget {
         children: [
           Expanded(
             child: Container(
-              color: AppTheme.backgroundColor,
+              // color: AppTheme.backgroundColor,
               child: Obx(() {
                 if (locationController.isLoading.value) {
                   return const Center(child: CircularProgressIndicator());
@@ -33,7 +34,7 @@ class CheckInScreen extends StatelessWidget {
                       height: 120,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppTheme.primaryColor.withOpacity(0.1),
+                        color: AppTheme.primaryColor.withValues(alpha: 0.1),
                         border: Border.all(
                           color: AppTheme.primaryColor,
                           width: 3,
@@ -86,7 +87,7 @@ class CheckInScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(12),
                     margin: const EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
-                      color: AppTheme.errorColor.withOpacity(0.1),
+                      color: AppTheme.errorColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: AppTheme.errorColor),
                     ),
@@ -95,7 +96,6 @@ class CheckInScreen extends StatelessWidget {
                       style: const TextStyle(
                         color: AppTheme.errorColor,
                         fontSize: 12,
-                        fontFamily: 'Poppins',
                       ),
                     ),
                   );
@@ -107,6 +107,7 @@ class CheckInScreen extends StatelessWidget {
                     onPressed: () {
                       print(locationController.currentPosition.value);
                       print(isSelectingLocation);
+                      
 
                       if (locationController.currentPosition.value != null) {
                         print('get location');
@@ -119,6 +120,9 @@ class CheckInScreen extends StatelessWidget {
                             locationController.currentPosition.value!.longitude,
                           );
                         }
+
+                        // Get.toNamed(AppRoutes.createTask);
+                        Get.back();
                       } else {
                         print('no location');
                         Get.back();
