@@ -26,13 +26,13 @@ class AppRoutes {
     ),
     GetPage(
       name: checkIn,
-      page: () => const CheckInScreen(),
+      page: () => CheckInScreen(),
       transition: Transition.cupertino,
     ),
 
-     GetPage(
+    GetPage(
       name: taskDetail,
-      page: () =>  TaskDetailScreen(),
+      page: () => TaskDetailScreen(),
       transition: Transition.cupertino,
     ),
   ];

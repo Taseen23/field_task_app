@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import '../config/app_routes.dart';
 import '../config/theme.dart';
 import 'controllers/task_controller.dart';
 import 'widgets/custom_text_field.dart';
@@ -160,26 +161,40 @@ class CreateTaskScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                     color: AppTheme.backgroundColor,
                   ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.location_on,
-                        color: AppTheme.primaryColor,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          controller.selectedLatitude.value != null
-                              ? '${controller.selectedLatitude.value!.toStringAsFixed(4)}, ${controller.selectedLongitude.value!.toStringAsFixed(4)}'
-                              : 'Select location',
-                          style: TextStyle(
-                            color: controller.selectedLatitude.value != null
-                                ? AppTheme.textPrimaryColor
-                                : AppTheme.textSecondaryColor,
+                  child: GestureDetector(
+                    onTap: () {
+                      Get.toNamed(
+                        '/check-in',
+                        arguments: {
+                          'isSelectingLocation': true,
+                          'onLocationSelected': (double lat, double lng) {
+                            controller.selectedLatitude.value = lat;
+                            controller.selectedLongitude.value = lng;
+                          },
+                        },
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.location_on,
+                          color: AppTheme.primaryColor,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            controller.selectedLatitude.value != null
+                                ? '${controller.selectedLatitude.value!.toStringAsFixed(4)}, ${controller.selectedLongitude.value!.toStringAsFixed(4)}'
+                                : 'Select location',
+                            style: TextStyle(
+                              color: controller.selectedLatitude.value != null
+                                  ? AppTheme.textPrimaryColor
+                                  : AppTheme.textSecondaryColor,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

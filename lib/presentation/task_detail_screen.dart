@@ -18,6 +18,7 @@ class TaskDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Select the task passed via arguments
     final Task task = Get.arguments as Task;
+
     // taskController.selectTask(task);
 
     return Scaffold(
@@ -48,6 +49,10 @@ class TaskDetailScreen extends StatelessWidget {
         final selectedTask = taskController.selectedTask.value;
         if (selectedTask == null)
           return const Center(child: Text('Task not found'));
+        taskController.getAddressFromLatLng(
+          selectedTask.latitude,
+          selectedTask.longitude,
+        );
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -87,19 +92,20 @@ class TaskDetailScreen extends StatelessWidget {
               _buildInfoRow(
                 icon: Icons.location_on,
                 label: 'Location',
-                value:
-                    '${selectedTask.latitude.toStringAsFixed(4)}, ${selectedTask.longitude.toStringAsFixed(4)}',
+                value: taskController.address.value,
+
+                // '${selectedTask.latitude.toStringAsFixed(4)}, ${selectedTask.longitude.toStringAsFixed(4)}',
               ),
               const SizedBox(height: 16),
               // Distance
-              _buildInfoRow(
-                icon: Icons.directions,
-                label: 'Distance',
-                value: 'test distance',
-                // TODO
-                //  locationController.formatDistance(locationController
-                //     .getDistanceToLocation(selectedTask.latitude, selectedTask.longitude)),
-              ),
+              // _buildInfoRow(
+              //   icon: Icons.directions,
+              //   label: 'Distance',
+              //   value: 'test distance',
+              //   // TODO
+              //   //  locationController.formatDistance(locationController
+              //   //     .getDistanceToLocation(selectedTask.latitude, selectedTask.longitude)),
+              // ),
               const SizedBox(height: 32),
               // Action Buttons
               if (taskController.isLoading.value)

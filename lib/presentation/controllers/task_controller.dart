@@ -1,5 +1,6 @@
 import 'package:field_task_app/domain/repositories/task_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 import 'package:uuid/uuid.dart';
@@ -67,6 +68,22 @@ class TaskController extends GetxController {
     super.onInit();
   }
 
+  var address = ''.obs;
+
+Future<void> getAddressFromLatLng(double lat, double lng) async {
+  try {
+    List<Placemark> placemarks = await placemarkFromCoordinates(lat, lng);
+
+    Placemark place = placemarks[0];
+
+    address.value =
+        "${place.street}, ${place.subLocality}, ${place.locality}, ${place.country}";
+  } catch (e) {
+    address.value = "Unknown Location";
+  }
+}
+
+
   /// Select Date
   Future<void> selectDate(BuildContext context) async {
     final picked = await showDatePicker(
@@ -119,8 +136,8 @@ class TaskController extends GetxController {
         description: description,
         dueDate: dueDate,
         status: 'pending',
-        latitude: 0,
-        longitude: 0,
+        latitude: latitude,
+        longitude: longitude,
         agentId: 'agentId', // Replace with actual agent ID
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
