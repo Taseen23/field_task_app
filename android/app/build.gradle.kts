@@ -37,6 +37,8 @@ android {
 
     buildTypes {
         release {
+       
+       
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
@@ -56,6 +58,9 @@ dependencies {
     implementation("com.android.support:multidex:1.0.3")
     implementation("com.google.firebase:firebase-messaging:21.1.0")
     implementation("com.pusher:push-notifications-android:1.9.0")
+    implementation("com.google.firebase:firebase-iid:21.1.0")
+
+
 
     // testImplementation("junit:junit:4.12")
 }
