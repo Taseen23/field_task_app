@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../config/app_routes.dart';
-import '../config/theme.dart';
-import 'controllers/task_controller.dart';
-import 'widgets/task_card.dart';
+import '../../config/app_routes.dart';
+import '../../config/theme.dart';
+import '../controllers/task_controller.dart';
+import '../widgets/task_card.dart';
 
 
 class HomeScreen extends StatelessWidget {

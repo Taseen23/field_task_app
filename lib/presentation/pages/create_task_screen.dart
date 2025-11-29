@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../config/app_routes.dart';
-import '../config/theme.dart';
-import 'controllers/task_controller.dart';
-import 'widgets/custom_text_field.dart';
+import '../../config/app_routes.dart';
+import '../../config/theme.dart';
+import '../controllers/task_controller.dart';
+import '../widgets/custom_text_field.dart';
 
 class CreateTaskScreen extends StatelessWidget {
   final TaskController controller = Get.put(TaskController());

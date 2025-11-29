@@ -107,7 +107,7 @@ class TaskRepositoryImpl implements TaskRepository {
   @override
   Future<void> deleteTaskLocally(String taskId) async {
     try {
-      await HiveService.deleteTask(taskId);
+      // await HiveService.deleteTask(taskId); // TODO
     } catch (e) {
       rethrow;
     }

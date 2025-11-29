@@ -1,8 +1,8 @@
 import 'package:get/get.dart';
-import '../presentation/check_in_screen.dart';
-import '../presentation/create_task_screen.dart';
-import '../presentation/home_screen.dart';
-import '../presentation/task_detail_screen.dart';
+import '../presentation/pages/check_in_screen.dart';
+import '../presentation/pages/create_task_screen.dart';
+import '../presentation/pages/home_screen.dart';
+import '../presentation/pages/task_detail_screen.dart';
 
 class AppRoutes {
   static const String splash = '/splash';

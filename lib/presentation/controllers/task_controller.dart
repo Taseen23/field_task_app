@@ -1,3 +1,4 @@
+import 'package:field_task_app/config/app_routes.dart';
 import 'package:field_task_app/domain/repositories/task_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -8,6 +9,7 @@ import 'package:uuid/uuid.dart';
 import '../../data/local/hive_service.dart';
 import '../../data/repositories/task_repository_impl.dart';
 import '../../domain/entities/task.dart';
+import 'location_controller.dart';
 
 class TaskController extends GetxController {
   final TaskRepository _taskRepository = TaskRepositoryImpl();
@@ -54,6 +56,8 @@ class TaskController extends GetxController {
     selectedTabIndex.value = index;
   }
 
+  late LocationController _locationController;
+
   // Dispose controllers
   @override
   void onClose() {
@@ -65,24 +69,24 @@ class TaskController extends GetxController {
 
   @override
   void onInit() {
+    _locationController = Get.find<LocationController>();
     super.onInit();
   }
 
   var address = ''.obs;
 
-Future<void> getAddressFromLatLng(double lat, double lng) async {
-  try {
-    List<Placemark> placemarks = await placemarkFromCoordinates(lat, lng);
+  Future<void> getAddressFromLatLng(double lat, double lng) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(lat, lng);
 
-    Placemark place = placemarks[0];
+      Placemark place = placemarks[0];
 
-    address.value =
-        "${place.street}, ${place.subLocality}, ${place.locality}, ${place.country}";
-  } catch (e) {
-    address.value = "Unknown Location";
+      address.value =
+          "${place.street}, ${place.subLocality}, ${place.locality}, ${place.country}";
+    } catch (e) {
+      address.value = "Unknown Location";
+    }
   }
-}
-
 
   /// Select Date
   Future<void> selectDate(BuildContext context) async {
@@ -171,6 +175,113 @@ Future<void> getAddressFromLatLng(double lat, double lng) async {
     }
   }
 
+  Future<void> checkInTask(String taskId) async {
+    print('1');
+    try {
+      final task = tasks.firstWhereOrNull((t) => t.id == taskId);
+      if (task == null) {
+        errorMessage.value = 'Task not found';
+        return;
+      }
+      print('2');
+
+      // Check proximity
+      isLoading.value = true;
+      final isNearby = await _locationController.isWithinProximity(
+        task.latitude,
+        task.longitude,
+      );
+
+      if (!isNearby) {
+        errorMessage.value =
+            'You are not within the required proximity (100m) of the task location';
+        isLoading.value = false;
+        return;
+      }
+      print('3');
+
+      // Update task status
+      final updatedTask = task.copyWith(
+        status: 'checked_in',
+        updatedAt: DateTime.now(),
+      );
+      await updateTask(updatedTask);
+
+      logger.i('Checked in to task: $taskId');
+    } catch (e) {
+      errorMessage.value = 'Failed to check in: $e';
+      logger.e('Check in error: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> updateTask(Task task) async {
+    try {
+      isLoading.value = true;
+      final updatedTask = task.copyWith(updatedAt: DateTime.now());
+
+      // Save locally first
+      await _taskRepository.saveTaskLocally(updatedTask);
+      final index = tasks.indexWhere((t) => t.id == task.id);
+      if (index != -1) {
+        tasks[index] = updatedTask;
+      }
+
+      // Try to sync with Firebase
+      try {
+        await _taskRepository.updateTaskInFirebase(updatedTask);
+        logger.i('Task updated and synced: ${task.id}');
+      } catch (e) {
+        // Add to sync queue if offline
+        await HiveService.addToSyncQueue(task.id, 'update');
+        logger.w('Task updated locally, will sync when online: $e');
+      }
+
+      Get.snackbar(
+        'Success',
+        'Task updated successfully',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      errorMessage.value = 'Failed to update task: $e';
+      logger.e('Update task error: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> deleteTask(String taskId) async {
+    try {
+      isLoading.value = true;
+
+      // Delete locally first
+      await _taskRepository.deleteTaskLocally(taskId);
+      tasks.removeWhere((t) => t.id == taskId);
+
+      // Try to sync with Firebase
+      try {
+        await _taskRepository.deleteTaskInFirebase(taskId);
+        logger.i('Task deleted and synced: $taskId');
+      } catch (e) {
+        // Add to sync queue if offline
+        // await HiveService.addToSyncQueue(taskId, 'delete'); // TODO
+        logger.w('Task deleted locally, will sync when online: $e');
+      }
+
+      Get.snackbar(
+        'Success',
+        'Task deleted successfully',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      errorMessage.value = 'Failed to delete task: $e';
+      logger.e('Delete task error: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   Future<void> fetchTasks() async {
     try {
       // if (!_authController.isAuthenticated) return;
@@ -196,5 +307,33 @@ Future<void> getAddressFromLatLng(double lat, double lng) async {
     } finally {
       isLoading.value = false;
     }
+  }
+}
+
+extension on Task {
+  Task copyWith({
+    String? id,
+    String? title,
+    String? description,
+    DateTime? dueDate,
+    String? status,
+    double? latitude,
+    double? longitude,
+    String? agentId,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return Task(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      dueDate: dueDate ?? this.dueDate,
+      status: status ?? this.status,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      agentId: agentId ?? this.agentId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
   }
 }

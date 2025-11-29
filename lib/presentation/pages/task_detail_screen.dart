@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-import '../config/theme.dart';
-import '../domain/entities/task.dart';
+import '../../config/theme.dart';
+import '../../domain/entities/task.dart';
 
-import 'controllers/task_controller.dart';
+import '../controllers/task_controller.dart';
 
 class TaskDetailScreen extends StatelessWidget {
   TaskDetailScreen({Key? key}) : super(key: key);
@@ -94,7 +94,7 @@ class TaskDetailScreen extends StatelessWidget {
                 label: 'Location',
                 value: taskController.address.value,
 
-                // '${selectedTask.latitude.toStringAsFixed(4)}, ${selectedTask.longitude.toStringAsFixed(4)}',
+        
               ),
               const SizedBox(height: 16),
               // Distance
@@ -279,8 +279,8 @@ class TaskDetailScreen extends StatelessWidget {
           TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
-              Get.back();
-              // taskController.checkInTask(task.id);
+              // Get.back();
+              taskController.checkInTask(task.id);
             },
             child: const Text('Check In'),
           ),
@@ -320,7 +320,7 @@ class TaskDetailScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               Get.back();
-              // taskController.deleteTask(task.id);
+              taskController.deleteTask(task.id);
               Get.back();
             },
             style: ElevatedButton.styleFrom(

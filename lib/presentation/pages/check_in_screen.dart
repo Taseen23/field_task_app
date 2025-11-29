@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../config/theme.dart';
-import 'controllers/location_controller.dart';
+import '../../config/theme.dart';
+import '../controllers/location_controller.dart';
 
 class CheckInScreen extends StatelessWidget {
   final LocationController locationController = Get.find<LocationController>();
