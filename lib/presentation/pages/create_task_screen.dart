@@ -203,25 +203,17 @@ class CreateTaskScreen extends StatelessWidget {
               width: double.infinity,
               child: GestureDetector(
                 onTap: () {
-                  controller.descriptionController.text = '';
-                  controller.titleController.text = '';
-                  controller.selectedDate.value = null;
-                  controller.selectedTime.value = null;
-                  controller.selectedLatitude.value = null;
-                  controller.selectedLongitude.value = null;
+                  // controller.descriptionController.text = '';
+                  // controller.titleController.text = '';
+                  // controller.selectedDate.value = null;
+                  // controller.selectedTime.value = null;
+                  // controller.selectedLatitude.value = null;
+                  // controller.selectedLongitude.value = null;
 
                   controller.isLoading.value
                       ? null
                       :
-                        // controller.titleController.text != ''
-                        // ? print('not working')
-                        // description:
-                        //     controller.descriptionController.text,
-                        // dueDate: controller.selectedDate.value!,
-                        // latitude: controller.selectedLatitude.value!,
-                        // title: controller.titleController.text,
-                        // longitude: controller.selectedLongitude.value!,
-                        // :
+                    
                         controller.createTask(
                           description: controller.descriptionController.text,
                           dueDate: controller.selectedDate.value!,
