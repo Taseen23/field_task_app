@@ -57,8 +57,7 @@ class TaskController extends GetxController {
   // Dispose controllers
   @override
   void onClose() {
-    titleController.dispose();
-    descriptionController.dispose();
+
 
     super.onClose();
   }
@@ -171,6 +170,8 @@ class TaskController extends GetxController {
         'Task created successfully',
         snackPosition: SnackPosition.BOTTOM,
       );
+
+      Get.offAllNamed(AppRoutes.home);
     } catch (e) {
       errorMessage.value = 'Failed to create task: $e';
       logger.e('Create task error: $e');

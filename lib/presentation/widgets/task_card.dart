@@ -98,6 +98,7 @@ class TaskCard extends StatelessWidget {
                     color: AppTheme.textSecondaryColor,
                   ),
                   const SizedBox(width: 6),
+               
                   Expanded(
                     child: Text(
                       '${task.latitude.toStringAsFixed(2)}, ${task.longitude.toStringAsFixed(2)}',
