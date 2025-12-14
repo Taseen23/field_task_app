@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:intl/intl.dart';
 import '../../config/theme.dart';
 import '../../domain/entities/task.dart';
@@ -98,14 +99,28 @@ class TaskCard extends StatelessWidget {
                     color: AppTheme.textSecondaryColor,
                   ),
                   const SizedBox(width: 6),
-               
+
                   Expanded(
-                    child: Text(
-                      '${task.latitude.toStringAsFixed(2)}, ${task.longitude.toStringAsFixed(2)}',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.textSecondaryColor,
-                      ),
-                      overflow: TextOverflow.ellipsis,
+                    child: FutureBuilder<String>(
+                      future: _getAddress(task.latitude, task.longitude),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Text(
+                            'Loading address...',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: AppTheme.textSecondaryColor),
+                            overflow: TextOverflow.ellipsis,
+                          );
+                        }
+                        return Text(
+                          snapshot.data ??
+                              '${task.latitude.toStringAsFixed(2)}, ${task.longitude.toStringAsFixed(2)}',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: AppTheme.textSecondaryColor),
+                          overflow: TextOverflow.ellipsis,
+                        );
+                      },
                     ),
                   ),
                 ],
@@ -168,6 +183,16 @@ class TaskCard extends StatelessWidget {
         return 1.0;
       default:
         return 0.0;
+    }
+  }
+
+  Future<String> _getAddress(double lat, double lng) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(lat, lng);
+      Placemark place = placemarks[0];
+      return "${place.street}, ${place.subLocality}, ${place.locality}, ${place.country}";
+    } catch (e) {
+      return "${lat.toStringAsFixed(2)}, ${lng.toStringAsFixed(2)}";
     }
   }
 }
